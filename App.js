@@ -8,7 +8,7 @@ export default class App extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <Header headerText="Specializari" />
+        <Header headerText="Alex was here" />
         <SectionList />
       </View>
     );
