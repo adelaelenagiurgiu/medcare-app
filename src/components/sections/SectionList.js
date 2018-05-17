@@ -1,24 +1,34 @@
 import React, { Component } from 'react';
-import { ScrollView } from 'react-native';
-import axios from 'axios';
+import { View, StyleSheet } from 'react-native';
+import { connect } from 'react-redux';
+
 import SectionDetail from './SectionDetail';
 
 class SectionList extends Component {
-  state = { sections: [] };
-  componentWillMount() {
-    axios
-      .get('https://shielded-sierra-53914.herokuapp.com/sections')
-      .then(response => this.setState({ sections: response.data.sections }));
-  }
-
   renderSections() {
-    return this.state.sections.map(section => (
-      <SectionDetail key={section.name} section={section} />
+    const { navigation } = this.props;
+    return this.props.sections.map(section => (
+      <SectionDetail key={section.name} section={section} navigation={navigation} />
     ));
   }
   render() {
-    console.log(this.state);
-    return <ScrollView>{this.renderSections()}</ScrollView>;
+    return <View style={styles.container}>{this.renderSections()}</View>;
   }
 }
-export default SectionList;
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 20
+  }
+});
+// state= the state of the app( in the redux store), map that and provide to the SectionList
+// give me state ( from provider )
+const mapStateToProps = state => {
+  return {
+    sections: state.sectionsArray.sections
+  };
+};
+// connecting  my SectionList with the app state
+export default connect(mapStateToProps)(SectionList);
