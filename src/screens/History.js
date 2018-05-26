@@ -5,17 +5,17 @@ import { Header } from 'react-native-elements';
 import { ArrowBack } from '../components/common';
 import { TURQUOISE, WHITE, GREY } from '../../assets/colors';
 
-export default class Account extends Component {
+export default class History extends Component {
   render() {
     return (
       <View style={styles.container}>
         <Header
           backgroundColor={TURQUOISE}
           leftComponent={<ArrowBack onPress={() => this.props.navigation.goBack()} />}
-          centerComponent={{ text: 'Profilul meu', style: { color: WHITE } }}
+          centerComponent={{ text: 'Istoric', style: { color: WHITE } }}
         />
         <View style={styles.textstyle}>
-          <Text>Profilul meu</Text>
+          <Text>Istoric</Text>
         </View>
       </View>
     );

@@ -1,16 +1,18 @@
 import React, { Component } from 'react';
-import { View } from 'react-native';
+import { FlatList } from 'react-native';
 import PropTypes from 'prop-types';
 import DoctorDetail from './DoctorDetail';
 
 export default class DoctorList extends Component {
-  renderDoctors() {
-    const { doctors } = this.props;
-    return doctors.map(doctor => <DoctorDetail key={doctor._id} doctor={doctor} />);
-  }
-
   render() {
-    return <View>{this.renderDoctors()}</View>;
+    return (
+      <FlatList
+        data={this.props.doctors}
+        keyExtractor={item => item._id}
+        initialNumToRender={1}
+        renderItem={({ item }) => <DoctorDetail doctor={item} />}
+      />
+    );
   }
 }
 

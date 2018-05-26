@@ -9,7 +9,7 @@ const SectionDetail = ({ section, navigation }) => {
   const { container, firstImageStyle, headerTextStyle, overlay } = styles;
 
   return (
-    <TouchableWithoutFeedback onPress={() => navigation.navigate('Doctors', { name })}>
+    <TouchableWithoutFeedback onPress={() => navigation.navigate('SectionServices', { name })}>
       <View style={container}>
         <Image style={firstImageStyle} source={{ uri: firstImage }} />
         <View style={overlay}>

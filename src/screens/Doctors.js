@@ -3,8 +3,8 @@ import { View, StyleSheet } from 'react-native';
 import { Header } from 'react-native-elements';
 import { connect } from 'react-redux';
 
-import ArrowBack from '../components/common/ArrowBack';
-import { GREY, LIGHT_TURQUOISE, WHITE } from '../../assets/colors';
+import { ArrowBack } from '../components/common';
+import { GREY, TURQUOISE, WHITE } from '../../assets/colors';
 import DoctorList from '../components/doctors/DoctorList';
 
 class Doctors extends Component {
@@ -24,10 +24,9 @@ class Doctors extends Component {
     return (
       <View style={styles.container}>
         <Header
-          backgroundColor={LIGHT_TURQUOISE}
+          backgroundColor={TURQUOISE}
           leftComponent={<ArrowBack onPress={() => this.props.navigation.goBack()} />}
           centerComponent={{ text: this.sectionName, style: { color: WHITE } }}
-          rightComponent={{ icon: 'home', color: WHITE }}
         />
         <DoctorList doctors={this.doctors} />
       </View>
@@ -38,7 +37,6 @@ class Doctors extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 20,
     backgroundColor: GREY
   }
 });

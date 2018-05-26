@@ -1,10 +1,8 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Icon } from 'react-native-elements';
 
 import { WHITE } from '../../../assets/colors';
 
-export default class ArrowBack extends Component {
-  render() {
-    return <Icon color={WHITE} name="arrow-back" onPress={this.props.onPress} />;
-  }
-}
+export const ArrowBack = ({ onPress }) => {
+  return <Icon color={WHITE} name="arrow-back" onPress={onPress} />;
+};
