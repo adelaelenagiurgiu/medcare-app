@@ -3,3 +3,4 @@ export const TURQUOISE = '#018faf';
 export const WHITE = '#fff';
 export const GREY = '#ddd';
 export const MEDIUM_GREY = '#bbb';
+export const DARK_GREY = '#919191';

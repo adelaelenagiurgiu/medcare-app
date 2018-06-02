@@ -10,7 +10,7 @@ export default class DoctorList extends Component {
         data={this.props.doctors}
         keyExtractor={item => item._id}
         initialNumToRender={1}
-        renderItem={({ item }) => <DoctorDetail doctor={item} />}
+        renderItem={({ item }) => <DoctorDetail navigation={this.props.navigation} doctor={item} />}
       />
     );
   }

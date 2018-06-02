@@ -10,6 +10,7 @@ import Calendar from '../screens/Calendar';
 import History from '../screens/History';
 import Doctors from '../screens/Doctors';
 import SectionServices from '../screens/SectionServices';
+import Book from '../screens/Book';
 
 const SectionsStack = createStackNavigator(
   {
@@ -23,6 +24,10 @@ const SectionsStack = createStackNavigator(
     Doctors: {
       path: 'section/:name',
       screen: Doctors
+    },
+    Book: {
+      path: 'section/:doctor',
+      screen: Book
     }
   },
   {

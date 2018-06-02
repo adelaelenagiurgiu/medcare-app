@@ -22,6 +22,7 @@ export default class DoctorDetail extends PureComponent {
   }
 
   render() {
+    const { navigation } = this.props;
     const {
       doctorName,
       doctorSpecialization,
@@ -59,7 +60,9 @@ export default class DoctorDetail extends PureComponent {
           </View>
           <Line text="ORAR" />
           {this.renderSchedule()}
-          <Button>Vreau o programare!</Button>
+          <Button onPress={() => navigation.navigate('Book', { doctor: doctorName })}>
+            Vreau o programare!
+          </Button>
         </Card>
       </View>
     );

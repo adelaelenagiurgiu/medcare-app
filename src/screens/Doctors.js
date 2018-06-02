@@ -28,7 +28,7 @@ class Doctors extends Component {
           leftComponent={<ArrowBack onPress={() => this.props.navigation.goBack()} />}
           centerComponent={{ text: this.sectionName, style: { color: WHITE } }}
         />
-        <DoctorList doctors={this.doctors} />
+        <DoctorList doctors={this.doctors} navigation={this.props.navigation} />
       </View>
     );
   }
