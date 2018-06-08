@@ -49,11 +49,11 @@ class SectionServices extends Component {
           </List>
 
           <Button
-            buttonStyle={{ height: 50, width: SCREEN_WIDTH - 20, marginBottom: 20 }}
+            title="Vezi doctorii nostri!"
+            textColor={WHITE}
+            buttonStyle={styles.buttonStyle}
             onPress={() => this.props.navigation.navigate('Doctors', { name: this.sectionName })}
-          >
-            Vezi doctorii nostri!
-          </Button>
+          />
         </ScrollView>
       </View>
     );
@@ -87,6 +87,13 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     width: SCREEN_WIDTH - 20,
     borderWidth: 1
+  },
+  buttonStyle: {
+    height: 50,
+    width: SCREEN_WIDTH - 20,
+    marginBottom: 20,
+    justifyContent: 'center',
+    alignItems: 'center'
   }
 });
 

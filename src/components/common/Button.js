@@ -1,12 +1,40 @@
 import React from 'react';
-import { Text, TouchableOpacity } from 'react-native';
-import { WHITE, TURQUOISE } from '../../../assets/colors';
+import { View, TouchableOpacity } from 'react-native';
+import { Icon } from 'react-native-elements';
 
-export const Button = ({ onPress, children, buttonStyle }) => {
-  const { button, text } = styles;
+import { TURQUOISE } from '../../../assets/colors';
+import { TextLine } from '.';
+
+export const Button = ({
+  onPress,
+  title,
+  buttonStyle,
+  textColor,
+  textType,
+  icon,
+  iconType,
+  iconColor
+}) => {
+  const { button, iconContainer } = styles;
+
+  if (icon) {
+    return (
+      <TouchableOpacity onPress={onPress} style={[button, buttonStyle]}>
+        <View style={iconContainer}>
+          <Icon name={icon} type={iconType} color={iconColor} size={30} />
+          <TextLine type="PTbold" size={20} color={textColor} style={{ paddingLeft: 10 }}>
+            {title}
+          </TextLine>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+
   return (
     <TouchableOpacity onPress={onPress} style={[button, buttonStyle]}>
-      <Text style={text}>{children}</Text>
+      <TextLine type={textType || 'PTbold'} size={16} color={textColor}>
+        {title}
+      </TextLine>
     </TouchableOpacity>
   );
 };
@@ -21,12 +49,9 @@ const styles = {
     marginRight: 5,
     marginTop: 10
   },
-  text: {
-    alignSelf: 'center',
-    color: WHITE,
-    fontSize: 16,
-    fontFamily: 'PTbold',
-    paddingTop: 10,
-    paddingBottom: 10
+  iconContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center'
   }
 };

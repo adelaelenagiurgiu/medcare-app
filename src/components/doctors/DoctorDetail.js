@@ -2,7 +2,8 @@ import React, { PureComponent } from 'react';
 import { Text, Dimensions, View, Image } from 'react-native';
 import PropTypes from 'prop-types';
 import { Card, Icon } from 'react-native-elements';
-import { TURQUOISE } from '../../../assets/colors';
+
+import { TURQUOISE, WHITE } from '../../../assets/colors';
 import { Line, Button } from '../common';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -60,9 +61,12 @@ export default class DoctorDetail extends PureComponent {
           </View>
           <Line text="ORAR" />
           {this.renderSchedule()}
-          <Button onPress={() => navigation.navigate('Book', { doctor: doctorName })}>
-            Vreau o programare!
-          </Button>
+          <Button
+            title="Vreau o programare!"
+            textColor={WHITE}
+            buttonStyle={styles.button}
+            onPress={() => navigation.navigate('Book', { doctor: doctorName })}
+          />
         </Card>
       </View>
     );
@@ -111,5 +115,12 @@ const styles = {
     width: SCREEN_WIDTH - 30,
     height: SCREEN_HEIGHT / 3,
     marginTop: 8
+  },
+  button: {
+    height: 50,
+    width: SCREEN_WIDTH - 70,
+    marginBottom: 20,
+    justifyContent: 'center',
+    alignItems: 'center'
   }
 };

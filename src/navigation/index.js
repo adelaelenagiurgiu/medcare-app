@@ -11,6 +11,10 @@ import History from '../screens/History';
 import Doctors from '../screens/Doctors';
 import SectionServices from '../screens/SectionServices';
 import Book from '../screens/Book';
+import Welcome from '../screens/Welcome';
+import Login from '../screens/Login';
+import LoginOrSignUp from '../screens/LoginOrSignUp';
+import SignUp from '../screens/SignUp';
 
 const SectionsStack = createStackNavigator(
   {
@@ -35,7 +39,7 @@ const SectionsStack = createStackNavigator(
   }
 );
 
-const AppStack = createBottomTabNavigator(
+const TabStack = createBottomTabNavigator(
   {
     Home: {
       screen: SectionsStack
@@ -88,32 +92,55 @@ const AppStack = createBottomTabNavigator(
   }
 );
 
-// const AppStack = createStackNavigator(
-//   {
-//     Welcome: {
-//       screen: Welcome
-//     },
-//     SignIn: {
-//       screen: SignIn
-//     },
-//     Dashboard: {
-//       screen: Dashboard,
-//       navigationOptions: {
-//         gesturesEnabled: false
-//       }
-//     },
-//     Rooms: {
-//       path: 'hotel/:id',
-//       screen: Rooms
-//     },
-//     Booking: {
-//       path: 'hotel/:name/:room',
-//       screen: Booking
-//     }
-//   },
-//   {
-//     headerMode: 'none'
-//   }
-// );
+const PatientStack = createStackNavigator(
+  {
+    LoginOrSignUp: {
+      screen: LoginOrSignUp
+    },
+    Login: {
+      screen: Login
+    },
+    SignUp: {
+      screen: SignUp
+    },
+    Home: {
+      screen: TabStack
+    }
+  },
+  {
+    headerMode: 'none'
+  }
+);
+
+const DoctorStack = createStackNavigator(
+  {
+    Login: {
+      screen: Login
+    },
+    Home: {
+      screen: TabStack
+    }
+  },
+  {
+    headerMode: 'none'
+  }
+);
+
+const AppStack = createStackNavigator(
+  {
+    Welcome: {
+      screen: Welcome
+    },
+    Patient: {
+      screen: PatientStack
+    },
+    Doctor: {
+      screen: DoctorStack
+    }
+  },
+  {
+    headerMode: 'none'
+  }
+);
 
 export default AppStack;

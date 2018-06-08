@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
 import { Font, AppLoading } from 'expo';
 import { Provider } from 'react-redux';
-import axios from 'axios';
 
 import AppStack from './src/navigation';
-import { STORE_SECTIONS } from './src/actions/types';
+import StoreProvider from './src/store/StoreProvider';
 import { store } from './src/store';
-import { GET_SECTIONS } from './src/endpoints';
 
 export default class App extends Component {
   state = {
@@ -14,8 +12,8 @@ export default class App extends Component {
   };
 
   async loadAssetsAsync() {
-    const response = await axios.get(GET_SECTIONS);
-    store.dispatch({ type: STORE_SECTIONS, payload: response.data.sections });
+    await StoreProvider.getSections();
+    await StoreProvider.getAppointmentsForPatient('Vasile%20Baciu');
 
     await Font.loadAsync({
       enrBold: require('./assets/fonts/Enriqueta-Bold.ttf'),
