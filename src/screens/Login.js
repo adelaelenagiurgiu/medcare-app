@@ -1,21 +1,67 @@
 import React, { Component } from 'react';
 import { View, StyleSheet, Dimensions, Image } from 'react-native';
+import { connect } from 'react-redux';
 
-import { Button, TextLine, Input } from '../components/common';
+import StoreProvider from '../store/StoreProvider';
+import Error from '../components/Error';
+import { Button, TextLine, Input, Loading } from '../components/common';
+import { addError } from '../actions';
+import { login } from '../actions/auth';
 import { WHITE, TURQUOISE, LIGHT_TURQUOISE } from '../../assets/colors';
 import Logo from '../../assets/icon.png';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-export default class Login extends Component {
+class Login extends Component {
+  constructor(props) {
+    super(props);
+
+    this.onLogin = this.onLogin.bind(this);
+  }
+
   state = {
     email: '',
-    password: ''
+    password: '',
+    loading: false
   };
+
+  static getDerivedStateFromProps(props) {
+    if (props.user.token && props.user.role === 'patient') {
+      StoreProvider.getAppointmentsForPatient(props.user.name);
+      props.navigation.navigate('Home');
+      return {
+        loading: false
+      };
+    }
+
+    if (props.error !== '') {
+      return {
+        loading: false
+      };
+    }
+
+    return null;
+  }
+
+  onLogin() {
+    const { email, password } = this.state;
+    if (email.length === 0 || password.length === 0) {
+      this.props.addError('Campurile nu pot fi goale');
+    } else {
+      const user = {
+        email,
+        password
+      };
+      this.props.login(user);
+      this.setState({ loading: true });
+    }
+  }
 
   render() {
     return (
       <View style={styles.container}>
+        {this.state.loading ? <Loading /> : null}
+        <Error />
         <View style={styles.logoContainer}>
           <Image source={Logo} style={styles.logoStyle} />
           <View style={styles.textContainer}>
@@ -52,7 +98,7 @@ export default class Login extends Component {
             title="LOGARE"
             textColor={WHITE}
             buttonStyle={styles.button}
-            onPress={() => this.props.navigation.navigate('Home')}
+            onPress={this.onLogin}
           />
         </View>
       </View>
@@ -92,3 +138,15 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   }
 });
+
+const mapStateToProps = state => {
+  return {
+    user: state.user,
+    error: state.errors.error
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  { addError, login }
+)(Login);

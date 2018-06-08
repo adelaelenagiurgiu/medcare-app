@@ -3,7 +3,10 @@ import {
   CLEAR_USER,
   STORE_SECTIONS,
   DELETE_BOOKED_HOUR,
-  STORE_PATIENT_APPOINTMENTS
+  ADD_PATIENT_APPOINTMENT,
+  CLEAR_PATIENT_APPOINTMENTS,
+  ADD_ERROR,
+  CLEAR_ERROR
 } from './types';
 
 export const storeUser = user => {
@@ -33,9 +36,28 @@ export const deleteBookedHour = index => {
   };
 };
 
-// export const storePatientAppointments = appointments => {
-//   return {
-//     type: STORE_PATIENT_APPOINTMENTS,
-//     payload: appointments
-//   };
-// };
+export const addPatientAppointment = appointment => {
+  return {
+    type: ADD_PATIENT_APPOINTMENT,
+    payload: appointment
+  };
+};
+
+export const clearPatientAppointments = () => {
+  return {
+    type: CLEAR_PATIENT_APPOINTMENTS
+  };
+};
+
+export const addError = text => {
+  return {
+    type: ADD_ERROR,
+    payload: text
+  };
+};
+
+export const clearError = () => {
+  return {
+    type: CLEAR_ERROR
+  };
+};

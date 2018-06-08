@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { View, StyleSheet, Text, FlatList, ScrollView, Dimensions } from 'react-native';
+import { Constants } from 'expo';
 import { connect } from 'react-redux';
 import { Header, Card, List, ListItem } from 'react-native-elements';
 import { WHITE, GREY, TURQUOISE } from '../../assets/colors';
@@ -29,6 +30,8 @@ class SectionServices extends Component {
           backgroundColor={TURQUOISE}
           leftComponent={<ArrowBack onPress={() => this.props.navigation.goBack()} />}
           centerComponent={{ text: this.sectionName, style: { color: WHITE } }}
+          innerContainerStyles={{ alignItems: 'center' }}
+          outerContainerStyles={{ height: 50 }}
         />
         <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
           <Card containerStyle={styles.cardStyle}>
@@ -47,7 +50,6 @@ class SectionServices extends Component {
               )}
             />
           </List>
-
           <Button
             title="Vezi doctorii nostri!"
             textColor={WHITE}
@@ -63,7 +65,8 @@ class SectionServices extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: GREY
+    backgroundColor: GREY,
+    paddingTop: Constants.statusBarHeight
   },
   textDescription: {
     fontFamily: 'PTregular',

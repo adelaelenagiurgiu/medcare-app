@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { View, StyleSheet } from 'react-native';
+import { Constants } from 'expo';
 import { Header } from 'react-native-elements';
 import { connect } from 'react-redux';
 
@@ -27,6 +28,8 @@ class Doctors extends Component {
           backgroundColor={TURQUOISE}
           leftComponent={<ArrowBack onPress={() => this.props.navigation.goBack()} />}
           centerComponent={{ text: this.sectionName, style: { color: WHITE } }}
+          innerContainerStyles={{ alignItems: 'center' }}
+          outerContainerStyles={{ height: 50 }}
         />
         <DoctorList doctors={this.doctors} navigation={this.props.navigation} />
       </View>
@@ -37,7 +40,8 @@ class Doctors extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: GREY
+    backgroundColor: GREY,
+    paddingTop: Constants.statusBarHeight
   }
 });
 

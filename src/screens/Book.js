@@ -9,13 +9,15 @@ import {
   ScrollView,
   Alert
 } from 'react-native';
+import { Constants } from 'expo';
 import { connect } from 'react-redux';
 import { Header } from 'react-native-elements';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import moment from 'moment';
 
 import StoreProvider from '../store/StoreProvider';
-import { ArrowBack, Button } from '../components/common';
+import Error from '../components/Error';
+import { ArrowBack, Button, Loading } from '../components/common';
 import { GREY, DARK_GREY, LIGHT_TURQUOISE, TURQUOISE, WHITE } from '../../assets/colors';
 import { deleteBookedHour } from '../actions';
 
@@ -48,32 +50,44 @@ class Book extends Component {
     super(props);
 
     this.currentDate = moment().format('YYYY-MM-DD');
+    this.month = moment().format('M');
+    this.year = moment().format('YYYY');
     this.minDate = moment()
-      .startOf('week')
-      .add(1, 'day')
+      .startOf('year')
       .format('YYYY-MM-DD');
     this.maxDate = moment()
-      .endOf('week')
+      .endOf('year')
       .format('YYYY-MM-DD');
 
     this.onBook = this.onBook.bind(this);
     this.onButtonPress = this.onButtonPress.bind(this);
+    this.getMarkedDays = this.getMarkedDays.bind(this);
   }
 
   state = {
     focusIndex: 0,
-    date: {}
+    date: {},
+    markedDates: {},
+    dateSelected: false,
+    loading: false
   };
+
+  componentDidMount() {
+    if (!this.state.dateSelected) {
+      this.getMarkedDays(this.month - 1, this.month, this.year, 'Sunday');
+    }
+  }
 
   async onBook() {
     const doctor = this.props.navigation.getParam('doctor');
     const dayInEnglish = moment(this.state.date.dateString, 'YYYY-MM-DD').format('dddd');
     const dayParam = this.transformDay(dayInEnglish);
 
-    const { availableHours } = this.props;
+    const { availableHours, user } = this.props;
+    const patient = user.name;
 
     const appointment = {
-      patient: 'Vasile Baciu',
+      patient,
       doctor,
       weekDay: dayParam,
       date: {
@@ -86,10 +100,7 @@ class Book extends Component {
     };
 
     await StoreProvider.book(appointment);
-
-    const patient = 'Vasile Baciu';
-    const patientParam = encodeURIComponent(patient);
-    await StoreProvider.getAppointmentsForPatient(patientParam);
+    await StoreProvider.getAppointmentsForPatient(patient);
 
     const updateBody = {
       doctor,
@@ -102,8 +113,10 @@ class Book extends Component {
   }
 
   async onButtonPress() {
-    if (this.props.availableHours.length > 0) {
+    if (this.state.dateSelected) {
+      this.setState({ loading: true });
       await this.onBook();
+      this.setState({ loading: false });
       Alert.alert(
         'Succes',
         'Programarea a fost facuta!',
@@ -118,12 +131,54 @@ class Book extends Component {
   }
 
   async onDayPress(day) {
-    this.setState({ date: day });
-    const doctor = this.props.navigation.getParam('doctor');
-    const doctorParam = encodeURIComponent(doctor);
-    const dayInEnglish = moment(day.dateString, 'YYYY-MM-DD').format('dddd');
-    const dayParam = this.transformDay(dayInEnglish);
-    await StoreProvider.getAvailableHours(doctorParam, dayParam);
+    const { markedDates } = this.state;
+    const selected = { selected: true };
+    const object = {
+      [day.dateString]: selected
+    };
+
+    if (!(day.dateString in markedDates)) {
+      this.setState(prevState => {
+        Object.keys(prevState.markedDates).forEach(key => {
+          if (prevState.markedDates[key].selected) {
+            delete markedDates[key];
+          }
+        });
+        return {
+          date: day,
+          dateSelected: true,
+          loading: true,
+          markedDates: Object.assign({}, markedDates, object)
+        };
+      });
+
+      const doctor = this.props.navigation.getParam('doctor');
+      const doctorParam = encodeURIComponent(doctor);
+      const dayInEnglish = moment(day.dateString, 'YYYY-MM-DD').format('dddd');
+      const dayParam = this.transformDay(dayInEnglish);
+      const dateParam = moment(day.dateString, 'YYYY-MM-DD').format('D-M-YYYY');
+      await StoreProvider.getAvailableHours(doctorParam, dayParam, dateParam);
+    }
+    this.setState({ loading: false });
+  }
+
+  getMarkedDays(startMonth, endMonth, year, sunday) {
+    const start = moment()
+      .month(startMonth)
+      .year(year)
+      .startOf('month');
+    const end = moment()
+      .month(endMonth)
+      .year(year)
+      .endOf('month');
+
+    const dates = {};
+    const disabled = { disabled: true };
+    while (start.isBefore(end)) {
+      dates[start.day(sunday).format('YYYY-MM-DD')] = disabled;
+      start.add(7, 'days');
+    }
+    this.setState({ markedDates: dates });
   }
 
   transformDay(day) {
@@ -195,15 +250,15 @@ class Book extends Component {
           backgroundColor={TURQUOISE}
           leftComponent={<ArrowBack onPress={() => this.props.navigation.goBack()} />}
           centerComponent={{ text: 'Programare', style: { color: WHITE } }}
+          innerContainerStyles={{ alignItems: 'center' }}
+          outerContainerStyles={{ height: 50 }}
         />
+        <Error />
+        {this.state.loading ? <Loading /> : null}
         <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-          <View style={styles.textContainer}>
-            <Text style={styles.textStyle}>Programarile se fac doar pe saptamana curenta</Text>
-          </View>
           <Calendar
             theme={{
               backgroundColor: GREY,
-              // calendarBackground: GREY,
               textSectionTitleColor: LIGHT_TURQUOISE,
               selectedDayTextColor: TURQUOISE,
               selectedDayBackgroundColor: WHITE,
@@ -220,23 +275,20 @@ class Book extends Component {
               textMonthFontSize: 14,
               textDayHeaderFontSize: 14
             }}
-            current={this.currentDate}
             minDate={this.minDate}
             maxDate={this.maxDate}
             onDayPress={day => {
               this.onDayPress(day);
             }}
-            monthFormat="MMMM"
-            onMonthChange={month => {
-              console.log('month changed', month);
+            onMonthChange={date => {
+              this.getMarkedDays(date.month - 1, date.month, date.year, 'Sunday');
             }}
+            monthFormat="MMMM"
             disableMonthChange
             firstDay={1}
             onPressArrowLeft={substractMonth => substractMonth()}
             onPressArrowRight={addMonth => addMonth()}
-            markedDates={{
-              [this.state.date.dateString]: { selected: true }
-            }}
+            markedDates={this.state.markedDates}
           />
           {this.renderAvailableHours()}
           <Button
@@ -255,7 +307,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: WHITE,
-    paddingBottom: 10
+    paddingBottom: 10,
+    paddingTop: Constants.statusBarHeight
   },
   textStyle: {
     fontSize: 14,
@@ -292,7 +345,8 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = state => {
   return {
-    availableHours: state.appointments.availableHours
+    availableHours: state.appointments.availableHours,
+    user: state.user
   };
 };
 

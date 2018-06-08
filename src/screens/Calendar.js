@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { View, StyleSheet, Text, Dimensions } from 'react-native';
+import { Constants } from 'expo';
 import { Header, Card, Icon, Avatar } from 'react-native-elements';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { connect } from 'react-redux';
@@ -40,7 +41,20 @@ LocaleConfig.locales['ro'] = {
 LocaleConfig.defaultLocale = 'ro';
 
 class Calendars extends Component {
+  constructor(props) {
+    super(props);
+
+    this.minDate = moment()
+      .startOf('year')
+      .format('YYYY-MM-DD');
+    this.maxDate = moment()
+      .endOf('year')
+      .format('YYYY-MM-DD');
+  }
+
   state = {
+    // eslint-disable-next-line
+    patientAppointments: [],
     markedDates: {},
     selectedDay: {},
     selected: false,
@@ -85,8 +99,46 @@ class Calendars extends Component {
       };
     }
 
+    if (props.patientAppointments !== state.patientAppointments) {
+      const doctors = [];
+      const dates = {};
+
+      if (props.patientAppointments.length > 0) {
+        for (const appointment of props.patientAppointments) {
+          const doctorObject = {
+            doctorName: '',
+            doctorImage: ''
+          };
+          doctorObject.doctorName = appointment.doctor;
+          doctors.push(doctorObject);
+
+          const dateString = moment(
+            `${appointment.date.year}-${appointment.date.month}-${appointment.date.day}`,
+            'YYYY-MM-DD'
+          ).format('YYYY-MM-DD');
+          dates[dateString] = { selected: true, marked: true, selectedColor: TURQUOISE };
+        }
+      }
+
+      props.sections.map(section => {
+        section.doctors.map(sectionDoctor => {
+          for (const doctor of doctors) {
+            if (doctor.doctorName === sectionDoctor.doctorName) {
+              doctor.doctorImage = sectionDoctor.doctorImage;
+            }
+          }
+        });
+      });
+
+      return {
+        doctors,
+        markedDates: dates
+      };
+    }
+
     if (props.patientAppointments.length > 0) {
       const dates = {};
+
       for (const appointment of props.patientAppointments) {
         const dateString = moment(
           `${appointment.date.year}-${appointment.date.month}-${appointment.date.day}`,
@@ -148,12 +200,19 @@ class Calendars extends Component {
             </View>
             <View style={{ flex: 2, marginLeft: 15 }}>
               <View style={styles.row}>
-                <Icon name="user-md" type="font-awesome" color={TURQUOISE} />
-                <Text style={styles.appointmentTextStyle}>{selectedAppointment.doctor}</Text>
+                <Icon
+                  name="user-md"
+                  type="font-awesome"
+                  color={TURQUOISE}
+                  containerStyle={{ marginLeft: 2 }}
+                />
+                <Text style={[styles.appointmentTextStyle, { marginLeft: 14 }]}>
+                  {selectedAppointment.doctor}
+                </Text>
               </View>
               <View style={styles.row}>
                 <Icon name="calendar" type="font-awesome" color={TURQUOISE} />
-                <Text style={styles.appointmentTextStyle}>
+                <Text style={[styles.appointmentTextStyle, { marginLeft: 13 }]}>
                   {selectedAppointment.weekDay}, {constructedDate}
                 </Text>
               </View>
@@ -177,6 +236,8 @@ class Calendars extends Component {
           backgroundColor={TURQUOISE}
           leftComponent={<ArrowBack onPress={() => this.props.navigation.goBack()} />}
           centerComponent={{ text: 'Calendar', style: { color: WHITE } }}
+          innerContainerStyles={{ alignItems: 'center' }}
+          outerContainerStyles={{ height: 50 }}
         />
         <Calendar
           theme={{
@@ -197,11 +258,13 @@ class Calendars extends Component {
             textMonthFontSize: 14,
             textDayHeaderFontSize: 14
           }}
-          current="2018-06-01"
-          minDate="2018-01-01"
-          maxDate="2018-12-31"
+          minDate={this.minDate}
+          maxDate={this.maxDate}
           onDayPress={day => {
             this.onDayPress(day);
+          }}
+          onMonthChange={() => {
+            this.setState({ selectedDay: {}, selected: false });
           }}
           monthFormat="MMMM"
           disableMonthChange
@@ -219,7 +282,8 @@ class Calendars extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: GREY
+    backgroundColor: GREY,
+    paddingTop: Constants.statusBarHeight
   },
   textstyle: {
     marginTop: 29,

@@ -1,30 +1,112 @@
 import React, { Component } from 'react';
 import { View, Image, Dimensions, StyleSheet, ScrollView } from 'react-native';
+import { connect } from 'react-redux';
 
-import { TextLine, Input, Button } from '../components/common';
+import Error from '../components/Error';
+import { addError } from '../actions';
+import { register } from '../actions/auth';
+import { TextLine, Input, Button, Loading } from '../components/common';
 import { WHITE, TURQUOISE, LIGHT_TURQUOISE } from '../../assets/colors';
 import Logo from '../../assets/icon.png';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-export default class SignUp extends Component {
+class SignUp extends Component {
+  constructor(props) {
+    super(props);
+
+    this.onSignUp = this.onSignUp.bind(this);
+  }
+
   state = {
     email: '',
     password: '',
     gender: '',
     name: '',
-    identityCard: '',
-    telephone: '',
+    cnp: '',
+    phone: '',
     country: '',
     city: '',
     street: '',
     postalCode: '',
     weight: '',
-    height: ''
+    height: '',
+    loading: false
   };
+
+  static getDerivedStateFromProps(props) {
+    if (props.user.token && props.user.role === 'patient') {
+      props.navigation.navigate('Home');
+      return {
+        loading: false
+      };
+    }
+
+    if (props.error !== '') {
+      return {
+        loading: false
+      };
+    }
+
+    return null;
+  }
+
+  onSignUp() {
+    const {
+      email,
+      password,
+      gender,
+      name,
+      cnp,
+      phone,
+      country,
+      city,
+      street,
+      postalCode,
+      weight,
+      height
+    } = this.state;
+
+    if (
+      email.length === 0 ||
+      password.length === 0 ||
+      gender.length === 0 ||
+      name.length === 0 ||
+      cnp.length === 0 ||
+      phone.length === 0 ||
+      country.length === 0 ||
+      city.length === 0 ||
+      street.length === 0 ||
+      postalCode.length === 0 ||
+      weight.length === 0 ||
+      height.length === 0
+    ) {
+      this.props.addError('Campurile nu pot fi goale');
+    } else {
+      const user = {
+        email,
+        password,
+        gender,
+        name,
+        cnp,
+        street,
+        postalCode,
+        phone,
+        city,
+        country,
+        weight,
+        height
+      };
+      this.props.register(user);
+      this.setState({ loading: true });
+    }
+  }
+
   render() {
     return (
       <ScrollView style={styles.container}>
+        <Error />
+        {this.state.loading ? <Loading /> : null}
         <View style={styles.logoContainer}>
           <Image source={Logo} style={styles.logoStyle} />
           <View style={styles.textContainer}>
@@ -61,7 +143,7 @@ export default class SignUp extends Component {
             value={this.state.gender}
             onChangeText={gender => this.setState({ gender })}
             underlineColorAndroid="transparent"
-            placeholder="Sexul dumneavostra"
+            placeholder="Sexul dumneavostra (M/F)"
             width={SCREEN_WIDTH - 60}
             icon="gender-male-female"
             iconType="material-community"
@@ -76,39 +158,13 @@ export default class SignUp extends Component {
             iconType="font-awesome"
           />
           <Input
-            value={this.state.identityCard}
-            onChangeText={identityCard => this.setState({ identityCard })}
+            value={this.state.cnp}
+            onChangeText={cnp => this.setState({ cnp })}
             underlineColorAndroid="transparent"
             placeholder="CNP"
             width={SCREEN_WIDTH - 60}
             icon="id-card"
             iconType="font-awesome"
-          />
-          <Input
-            value={this.state.telephone}
-            onChangeText={telephone => this.setState({ telephone })}
-            underlineColorAndroid="transparent"
-            placeholder="Numar de telefon"
-            width={SCREEN_WIDTH - 60}
-            icon="phone"
-            iconType="font-awesome"
-          />
-          <Input
-            value={this.state.country}
-            onChangeText={country => this.setState({ country })}
-            underlineColorAndroid="transparent"
-            placeholder="Tara"
-            width={SCREEN_WIDTH - 60}
-            icon="flag"
-            iconType="font-awesome"
-          />
-          <Input
-            value={this.state.city}
-            onChangeText={city => this.setState({ city })}
-            underlineColorAndroid="transparent"
-            placeholder="Oras"
-            width={SCREEN_WIDTH - 60}
-            icon="location-city"
           />
           <Input
             value={this.state.street}
@@ -127,6 +183,32 @@ export default class SignUp extends Component {
             keyboardType="numeric"
             width={SCREEN_WIDTH - 60}
             icon="local-post-office"
+          />
+          <Input
+            value={this.state.phone}
+            onChangeText={phone => this.setState({ phone })}
+            underlineColorAndroid="transparent"
+            placeholder="Numar de telefon"
+            width={SCREEN_WIDTH - 60}
+            icon="phone"
+            iconType="font-awesome"
+          />
+          <Input
+            value={this.state.city}
+            onChangeText={city => this.setState({ city })}
+            underlineColorAndroid="transparent"
+            placeholder="Oras"
+            width={SCREEN_WIDTH - 60}
+            icon="location-city"
+          />
+          <Input
+            value={this.state.country}
+            onChangeText={country => this.setState({ country })}
+            underlineColorAndroid="transparent"
+            placeholder="Tara"
+            width={SCREEN_WIDTH - 60}
+            icon="flag"
+            iconType="font-awesome"
           />
           <Input
             value={this.state.weight}
@@ -152,7 +234,7 @@ export default class SignUp extends Component {
             title="CREEAZA CONT"
             textColor={WHITE}
             buttonStyle={styles.button}
-            onPress={() => this.props.navigation.navigate('Home')}
+            onPress={this.onSignUp}
           />
         </View>
         <View style={{ height: 200 }} />
@@ -194,3 +276,15 @@ const styles = StyleSheet.create({
     backgroundColor: LIGHT_TURQUOISE
   }
 });
+
+const mapStateToProps = state => {
+  return {
+    user: state.user,
+    error: state.errors.error
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  { addError, register }
+)(SignUp);

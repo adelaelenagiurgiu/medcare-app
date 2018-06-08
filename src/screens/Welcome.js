@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import { View, Image, StyleSheet, Dimensions } from 'react-native';
+import { View, Image, StyleSheet, Dimensions, AsyncStorage } from 'react-native';
+import { connect } from 'react-redux';
 
+// import StoreProvider from '../store/StoreProvider';
 import { TURQUOISE, LIGHT_TURQUOISE, WHITE } from '../../assets/colors';
 import Logo from '../../assets/icon.png';
 import { TextLine, Button } from '../components/common';
@@ -8,7 +10,22 @@ import { TextLine, Button } from '../components/common';
 // const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-export default class Welcome extends Component {
+class Welcome extends Component {
+  constructor(props) {
+    super(props);
+    this.checkForPreviousLogin();
+  }
+
+  async checkForPreviousLogin() {
+    const { user, navigation } = this.props;
+    const token = await AsyncStorage.getItem('token');
+
+    if (user.role === 'patient' && token) {
+      // await StoreProvider.getAppointmentsForPatient(user.name);
+      navigation.navigate('Home');
+    }
+  }
+
   render() {
     return (
       <View style={styles.container}>
@@ -85,3 +102,11 @@ const styles = StyleSheet.create({
     borderColor: LIGHT_TURQUOISE
   }
 });
+
+const mapStateToProps = state => {
+  return {
+    user: state.user
+  };
+};
+
+export default connect(mapStateToProps)(Welcome);
