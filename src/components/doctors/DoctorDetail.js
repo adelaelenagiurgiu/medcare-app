@@ -65,7 +65,7 @@ export default class DoctorDetail extends PureComponent {
             title="Vreau o programare!"
             textColor={WHITE}
             buttonStyle={styles.button}
-            onPress={() => navigation.navigate('Book', { doctor: doctorName })}
+            onPress={() => navigation.navigate('Book', { doctor: doctorName, doctorImage })}
           />
         </Card>
       </View>

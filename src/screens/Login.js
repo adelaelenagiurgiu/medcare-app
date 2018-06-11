@@ -26,8 +26,10 @@ class Login extends Component {
   };
 
   static getDerivedStateFromProps(props) {
-    if (props.user.token && props.user.role === 'patient') {
-      StoreProvider.getAppointmentsForPatient(props.user.name);
+    const { user, patient } = props;
+    if (user.token && user.role === 'patient') {
+      StoreProvider.getAppointmentsForPatient(patient.name);
+      //StoreProvider.getPatientHistory(patient.name);
       props.navigation.navigate('Home');
       return {
         loading: false
@@ -95,7 +97,7 @@ class Login extends Component {
             iconType="font-awesome"
           />
           <Button
-            title="LOGARE"
+            title="INTRA IN CONT"
             textColor={WHITE}
             buttonStyle={styles.button}
             onPress={this.onLogin}
@@ -142,6 +144,7 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => {
   return {
     user: state.user,
+    patient: state.patient.patient,
     error: state.errors.error
   };
 };

@@ -22,15 +22,12 @@ const SectionsStack = createStackNavigator(
       screen: Sections
     },
     SectionServices: {
-      path: 'section/:name',
       screen: SectionServices
     },
     Doctors: {
-      path: 'section/:name',
       screen: Doctors
     },
     Book: {
-      path: 'section/:doctor',
       screen: Book
     }
   },

@@ -2,7 +2,10 @@ import React, { Component } from 'react';
 import { View, Image, StyleSheet, Dimensions, AsyncStorage } from 'react-native';
 import { connect } from 'react-redux';
 
-// import StoreProvider from '../store/StoreProvider';
+import StoreProvider from '../store/StoreProvider';
+import Error from '../components/Error';
+// import { persistor, store } from '../store';
+import { clearUser, clearPatientData } from '../actions';
 import { TURQUOISE, LIGHT_TURQUOISE, WHITE } from '../../assets/colors';
 import Logo from '../../assets/icon.png';
 import { TextLine, Button } from '../components/common';
@@ -11,17 +14,17 @@ import { TextLine, Button } from '../components/common';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 class Welcome extends Component {
-  constructor(props) {
-    super(props);
-    this.checkForPreviousLogin();
-  }
-
-  async checkForPreviousLogin() {
-    const { user, navigation } = this.props;
+  async componentDidMount() {
+    const { user, patient, error, navigation } = this.props;
     const token = await AsyncStorage.getItem('token');
-
-    if (user.role === 'patient' && token) {
-      // await StoreProvider.getAppointmentsForPatient(user.name);
+    //   this.props.clearUser();
+    //   this.props.clearPatientData();
+    //   persistor.purge();
+    //   await AsyncStorage.clear();
+    //   const state = store.getState();
+    //   console.log(state.patient);
+    if (user.role === 'patient' && token && error.length === 0) {
+      await StoreProvider.getAppointmentsForPatient(patient.patientName);
       navigation.navigate('Home');
     }
   }
@@ -29,6 +32,7 @@ class Welcome extends Component {
   render() {
     return (
       <View style={styles.container}>
+        <Error />
         <View style={styles.logoContainer}>
           <Image source={Logo} style={styles.logoStyle} />
           <View style={styles.textContainer}>
@@ -105,8 +109,13 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = state => {
   return {
-    user: state.user
+    user: state.user,
+    patient: state.patient.patient,
+    error: state.errors.error
   };
 };
 
-export default connect(mapStateToProps)(Welcome);
+export default connect(
+  mapStateToProps,
+  { clearUser, clearPatientData }
+)(Welcome);

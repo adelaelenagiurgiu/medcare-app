@@ -1,16 +1,17 @@
 import { AsyncStorage } from 'react-native';
 import axios from 'axios';
 
-import { STORE_USER, ADD_ERROR } from './types';
+import StoreProvider from '../store/StoreProvider';
+import { STORE_USER, STORE_PATIENT_DATA, ADD_ERROR } from './types';
 import { REGISTER, LOGIN } from '../endpoints';
 
-export const register = user => dispatch => {
+export const register = (user, patient) => dispatch => {
   axios
     .post(REGISTER, user)
     .then(response => {
       const { token } = response.data;
       if (token) {
-        loginHelper({ email: user.email, password: user.password }, dispatch);
+        loginHelper({ email: user.email, password: user.password }, patient, dispatch);
       } else {
         dispatch({ type: ADD_ERROR, payload: 'Nu s-a putut inregistra contul' });
       }
@@ -24,45 +25,23 @@ export const register = user => dispatch => {
     });
 };
 
-const loginHelper = async (user, dispatch) => {
+const loginHelper = async (user, patient, dispatch) => {
   axios
     .post(LOGIN, { email: user.email, password: user.password })
     .then(async response => {
-      const {
-        _id,
-        email,
-        gender,
-        name,
-        cnp,
-        street,
-        postalCode,
-        phone,
-        city,
-        country,
-        weight,
-        height,
-        role
-      } = response.data.user;
+      const { _id, email, role } = response.data.user;
       const { token } = response.data;
       const userObject = {
         id: _id,
         email,
-        gender,
-        name,
-        cnp,
-        street,
-        postalCode,
-        phone,
-        city,
-        country,
-        weight,
-        height,
         role,
         token
       };
 
       await AsyncStorage.setItem('token', token);
       dispatch({ type: STORE_USER, payload: userObject });
+      await StoreProvider.addPatient(patient);
+      dispatch({ type: STORE_PATIENT_DATA, payload: patient });
     })
     .catch(err => {
       if (String(err).includes('401')) {
@@ -77,35 +56,11 @@ export const login = user => dispatch => {
   axios
     .post(LOGIN, user)
     .then(async response => {
-      const {
-        _id,
-        email,
-        gender,
-        name,
-        cnp,
-        street,
-        postalCode,
-        phone,
-        city,
-        country,
-        weight,
-        height,
-        role
-      } = response.data.user;
+      const { _id, email, role } = response.data.user;
       const { token } = response.data;
       const userObject = {
         id: _id,
         email,
-        gender,
-        name,
-        cnp,
-        street,
-        postalCode,
-        phone,
-        city,
-        country,
-        weight,
-        height,
         role,
         token
       };

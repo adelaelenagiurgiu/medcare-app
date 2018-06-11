@@ -3,16 +3,18 @@ import axios from 'axios';
 
 import images from '../../assets';
 import { store } from './';
-import { BOOK, APPOINTMENTS, USERS, SECTIONS } from '../endpoints';
+import { BOOK, APPOINTMENTS, USERS, SECTIONS, PATIENTS } from '../endpoints';
 import {
   STORE_AVAILABLE_HOURS,
   STORE_PATIENT_APPOINTMENTS,
   STORE_SECTIONS,
+  DELETE_APPOINTMENT,
+  STORE_PATIENT_DATA,
   ADD_ERROR
 } from '../actions/types';
 
 export default class StoreProvider {
-  static loadAssets() {
+  static async loadAssets() {
     const fontAssets = Font.loadAsync({
       enrBold: require('../../assets/fonts/Enriqueta-Bold.ttf'),
       enrRegular: require('../../assets/fonts/Enriqueta-Regular.ttf'),
@@ -29,17 +31,22 @@ export default class StoreProvider {
       });
     };
 
-    axios
-      .get(SECTIONS)
-      .then(response => {
-        if (response.status === 200) {
-          store.dispatch({
-            type: STORE_SECTIONS,
-            payload: response.data.sections
-          });
-        }
-      })
-      .catch(err => console.log(err));
+    const state = store.getState();
+    if (!state.sectionsArray.sections && state.sectionsArray.sections.length === 0) {
+      const response = await axios.get(SECTIONS).catch(() => {
+        store.dispatch({
+          type: ADD_ERROR,
+          payload: 'Nu s-au putut incarca datele aplicatiei'
+        });
+      });
+
+      if (response.status === 200) {
+        store.dispatch({
+          type: STORE_SECTIONS,
+          payload: response.data.sections
+        });
+      }
+    }
 
     return Promise.all([fontAssets, imageAssets]);
   }
@@ -61,33 +68,6 @@ export default class StoreProvider {
           payload: 'Nu s-a putut realiza programarea'
         });
       });
-    }
-  }
-
-  static updateStatus(body) {
-    const state = store.getState();
-
-    if (state.user.role === 'patient' && state.user.id !== '') {
-      const config = {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: state.user.token
-        }
-      };
-
-      axios
-        .put(`${APPOINTMENTS}/status`, body, config)
-        .then(response => {
-          if (response.status === 200 && response.data.updated) {
-            console.log('success');
-          }
-        })
-        .catch(() => {
-          store.dispatch({
-            type: ADD_ERROR,
-            payload: 'Nu s-a putut realiza programarea'
-          });
-        });
     }
   }
 
@@ -118,7 +98,7 @@ export default class StoreProvider {
     }
   }
 
-  static getAppointmentsForPatient(patient) {
+  static async getAppointmentsForPatient(patient) {
     const state = store.getState();
 
     if (state.user.role === 'patient' && state.user.id !== '') {
@@ -130,22 +110,81 @@ export default class StoreProvider {
       };
 
       const patientParam = encodeURIComponent(patient);
-      axios
+
+      const response = await axios
         .get(`${APPOINTMENTS}/patient/${patientParam}`, config)
-        .then(response => {
-          if (response.status === 200) {
-            store.dispatch({
-              type: STORE_PATIENT_APPOINTMENTS,
-              payload: response.data.appointments
-            });
-          }
-        })
         .catch(() => {
           store.dispatch({
             type: ADD_ERROR,
             payload: 'Nu s-au putut incarca programarile'
           });
         });
+
+      if (response.status === 200) {
+        store.dispatch({
+          type: STORE_PATIENT_APPOINTMENTS,
+          payload: response.data.appointments
+        });
+      }
+    }
+  }
+
+  static async deleteAppointment(id) {
+    const state = store.getState();
+
+    if (state.user.role === 'patient' && state.user.id !== '') {
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: state.user.token
+        }
+      };
+
+      // axios.interceptors.request.use(request => {
+      //   console.log('Starting Request', request);
+      //   return request;
+      // });
+
+      const response = await axios.delete(`${APPOINTMENTS}/delete/${id}`, config).catch(() => {
+        store.dispatch({
+          type: ADD_ERROR,
+          payload: 'Nu s-a putut sterge programarea'
+        });
+      });
+
+      if (response.status === 200 && response.data.deleted) {
+        store.dispatch({
+          type: DELETE_APPOINTMENT,
+          payload: id
+        });
+      }
+    }
+  }
+
+  static async addPatient(patient) {
+    const state = store.getState();
+
+    if (state.user.role === 'patient' && state.user.id !== '') {
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: state.user.token
+        }
+      };
+
+      const response = await axios.post(`${PATIENTS}/add`, patient, config).catch(() => {
+        store.dispatch({
+          type: ADD_ERROR,
+          payload: 'Nu s-a putut creea contul'
+        });
+      });
+
+      if (response.status === 200 && response.data.patient) {
+        store.dispatch({
+          type: STORE_PATIENT_DATA,
+          payload: response.data.patient
+        });
+      }
     }
   }
 }

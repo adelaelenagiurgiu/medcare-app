@@ -19,7 +19,7 @@ import StoreProvider from '../store/StoreProvider';
 import Error from '../components/Error';
 import { ArrowBack, Button, Loading } from '../components/common';
 import { GREY, DARK_GREY, LIGHT_TURQUOISE, TURQUOISE, WHITE } from '../../assets/colors';
-import { deleteBookedHour } from '../actions';
+import { deleteBookedHour, clearAvailableHours } from '../actions';
 
 // const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -74,21 +74,23 @@ class Book extends Component {
 
   componentDidMount() {
     if (!this.state.dateSelected) {
-      this.getMarkedDays(this.month - 1, this.month, this.year, 'Sunday');
+      this.getMarkedDays(this.month - 2, this.month, this.year, 'Sunday');
     }
   }
 
   async onBook() {
     const doctor = this.props.navigation.getParam('doctor');
+    const doctorImage = this.props.navigation.getParam('doctorImage');
     const dayInEnglish = moment(this.state.date.dateString, 'YYYY-MM-DD').format('dddd');
     const dayParam = this.transformDay(dayInEnglish);
 
-    const { availableHours, user } = this.props;
-    const patient = user.name;
+    const { availableHours, patientProp } = this.props;
+    const patient = patientProp.patientName;
 
     const appointment = {
       patient,
       doctor,
+      doctorImage,
       weekDay: dayParam,
       date: {
         day: this.state.date.day,
@@ -101,14 +103,6 @@ class Book extends Component {
 
     await StoreProvider.book(appointment);
     await StoreProvider.getAppointmentsForPatient(patient);
-
-    const updateBody = {
-      doctor,
-      weekDay: dayParam,
-      startHour: availableHours[this.state.focusIndex].start
-    };
-
-    await StoreProvider.updateStatus(updateBody);
     this.props.deleteBookedHour(this.state.focusIndex);
   }
 
@@ -158,8 +152,23 @@ class Book extends Component {
       const dayParam = this.transformDay(dayInEnglish);
       const dateParam = moment(day.dateString, 'YYYY-MM-DD').format('D-M-YYYY');
       await StoreProvider.getAvailableHours(doctorParam, dayParam, dateParam);
+      this.setState({ loading: false });
+    } else {
+      const { availableHours } = this.props;
+      if (availableHours.length > 0) {
+        this.props.clearAvailableHours();
+        this.setState(prevState => {
+          Object.keys(prevState.markedDates).forEach(key => {
+            if (prevState.markedDates[key].selected) {
+              delete markedDates[key];
+            }
+          });
+          return {
+            markedDates: Object.assign({}, markedDates)
+          };
+        });
+      }
     }
-    this.setState({ loading: false });
   }
 
   getMarkedDays(startMonth, endMonth, year, sunday) {
@@ -174,9 +183,15 @@ class Book extends Component {
 
     const dates = {};
     const disabled = { disabled: true };
+    // const now = moment();
     while (start.isBefore(end)) {
+      // if (start.isBefore(now)) {
+      // dates[start.format('YYYY-MM-DD')] = disabled;
+      // start.add(1, 'day');
+      // } else {
       dates[start.day(sunday).format('YYYY-MM-DD')] = disabled;
       start.add(7, 'days');
+      // }
     }
     this.setState({ markedDates: dates });
   }
@@ -281,7 +296,7 @@ class Book extends Component {
               this.onDayPress(day);
             }}
             onMonthChange={date => {
-              this.getMarkedDays(date.month - 1, date.month, date.year, 'Sunday');
+              this.getMarkedDays(date.month - 2, date.month, date.year, 'Sunday');
             }}
             monthFormat="MMMM"
             disableMonthChange
@@ -346,11 +361,11 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => {
   return {
     availableHours: state.appointments.availableHours,
-    user: state.user
+    patientProp: state.patient.patient
   };
 };
 
 export default connect(
   mapStateToProps,
-  { deleteBookedHour }
+  { deleteBookedHour, clearAvailableHours }
 )(Book);

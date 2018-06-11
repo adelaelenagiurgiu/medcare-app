@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Dimensions, AsyncStorage } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, AsyncStorage } from 'react-native';
 import { connect } from 'react-redux';
 import { Constants } from 'expo';
 import { Header } from 'react-native-elements';
@@ -43,6 +43,7 @@ class Account extends Component {
           outerContainerStyles={{ height: 50 }}
         />
         <View style={styles.contentContainer}>
+          <Text>{this.props.patient.patientName}</Text>
           <Button
             title="Deconecteaza-te"
             textColor={WHITE}
@@ -73,7 +74,13 @@ const styles = StyleSheet.create({
   }
 });
 
+const mapStateToProps = state => {
+  return {
+    patient: state.patient.patient
+  };
+};
+
 export default connect(
-  null,
+  mapStateToProps,
   { clearUser, clearPatientAppointments, addError }
 )(Account);

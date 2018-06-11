@@ -22,12 +22,14 @@ class SignUp extends Component {
     email: '',
     password: '',
     gender: '',
+    age: '',
     name: '',
     cnp: '',
     phone: '',
     country: '',
     city: '',
     street: '',
+    streetNumber: '',
     postalCode: '',
     weight: '',
     height: '',
@@ -35,14 +37,14 @@ class SignUp extends Component {
   };
 
   static getDerivedStateFromProps(props) {
-    if (props.user.token && props.user.role === 'patient') {
-      props.navigation.navigate('Home');
+    if (props.error.length > 0) {
       return {
         loading: false
       };
     }
 
-    if (props.error !== '') {
+    if (props.user.token && props.user.role === 'patient') {
+      props.navigation.navigate('Home');
       return {
         loading: false
       };
@@ -56,12 +58,14 @@ class SignUp extends Component {
       email,
       password,
       gender,
+      age,
       name,
       cnp,
       phone,
       country,
       city,
       street,
+      streetNumber,
       postalCode,
       weight,
       height
@@ -73,10 +77,12 @@ class SignUp extends Component {
       gender.length === 0 ||
       name.length === 0 ||
       cnp.length === 0 ||
+      age.length === 0 ||
       phone.length === 0 ||
       country.length === 0 ||
       city.length === 0 ||
       street.length === 0 ||
+      streetNumber.length === 0 ||
       postalCode.length === 0 ||
       weight.length === 0 ||
       height.length === 0
@@ -85,20 +91,29 @@ class SignUp extends Component {
     } else {
       const user = {
         email,
-        password,
+        password
+      };
+
+      const patient = {
+        email,
         gender,
         name,
         cnp,
-        street,
-        postalCode,
+        address: {
+          streetName: street,
+          streetNumber,
+          postalCode,
+          city,
+          country
+        },
+        age,
         phone,
-        city,
-        country,
         weight,
         height
       };
-      this.props.register(user);
+
       this.setState({ loading: true });
+      this.props.register(user, patient);
     }
   }
 
@@ -143,10 +158,19 @@ class SignUp extends Component {
             value={this.state.gender}
             onChangeText={gender => this.setState({ gender })}
             underlineColorAndroid="transparent"
-            placeholder="Sexul dumneavostra (M/F)"
+            placeholder="Masculin/Feminin"
             width={SCREEN_WIDTH - 60}
             icon="gender-male-female"
             iconType="material-community"
+          />
+          <Input
+            value={this.state.age}
+            onChangeText={age => this.setState({ age })}
+            underlineColorAndroid="transparent"
+            keyboardType="numeric"
+            placeholder="Varsta"
+            width={SCREEN_WIDTH - 60}
+            icon="cake"
           />
           <Input
             value={this.state.name}
@@ -161,26 +185,42 @@ class SignUp extends Component {
             value={this.state.cnp}
             onChangeText={cnp => this.setState({ cnp })}
             underlineColorAndroid="transparent"
+            keyboardType="numeric"
             placeholder="CNP"
             width={SCREEN_WIDTH - 60}
             icon="id-card"
             iconType="font-awesome"
           />
-          <Input
-            value={this.state.street}
-            onChangeText={street => this.setState({ street })}
-            underlineColorAndroid="transparent"
-            placeholder="Strada"
-            width={SCREEN_WIDTH - 60}
-            icon="address"
-            iconType="entypo"
-          />
+          <View
+            style={{
+              flexDirection: 'row',
+              width: SCREEN_WIDTH - 60,
+              justifyContent: 'space-between'
+            }}
+          >
+            <Input
+              value={this.state.street}
+              onChangeText={street => this.setState({ street })}
+              underlineColorAndroid="transparent"
+              placeholder="Strada"
+              width={SCREEN_WIDTH - 130}
+              icon="address"
+              iconType="entypo"
+            />
+            <Input
+              value={this.state.streetNumber}
+              onChangeText={streetNumber => this.setState({ streetNumber })}
+              underlineColorAndroid="transparent"
+              keyboardType="numeric"
+              placeholder="Nr"
+              width={60}
+            />
+          </View>
           <Input
             value={this.state.postalCode}
             onChangeText={postalCode => this.setState({ postalCode })}
             underlineColorAndroid="transparent"
             placeholder="Cod postal"
-            keyboardType="numeric"
             width={SCREEN_WIDTH - 60}
             icon="local-post-office"
           />
@@ -189,6 +229,7 @@ class SignUp extends Component {
             onChangeText={phone => this.setState({ phone })}
             underlineColorAndroid="transparent"
             placeholder="Numar de telefon"
+            keyboardType="numeric"
             width={SCREEN_WIDTH - 60}
             icon="phone"
             iconType="font-awesome"
@@ -280,7 +321,8 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => {
   return {
     user: state.user,
-    error: state.errors.error
+    error: state.errors.error,
+    patient: state.patient.patient
   };
 };
 
