@@ -24,7 +24,7 @@ class HistoryDetail extends Component {
   onExpand() {
     const { cardHeight } = this.state;
     if (cardHeight === 125) {
-      this.setState({ expanded: true, cardHeight: 250, justifyContent: 'flex-start' });
+      this.setState({ expanded: true, cardHeight: 330, justifyContent: 'flex-start' });
     } else {
       this.setState({ expanded: false, cardHeight: 125, justifyContent: 'center' });
     }
@@ -32,7 +32,11 @@ class HistoryDetail extends Component {
 
   renderResults(results) {
     return results.map(result => {
-      return <Text key={result._id}>{result.result}</Text>;
+      return (
+        <Text style={styles.text} key={result._id}>
+          {result.result}
+        </Text>
+      );
     });
   }
 
@@ -40,11 +44,26 @@ class HistoryDetail extends Component {
     const { expanded } = this.state;
     if (expanded) {
       return (
-        <View>
-          <Text>{appointment.analysis}</Text>
-          <Text>{appointment.disease}</Text>
-          <Text>{appointment.medication}</Text>
-          {this.renderResults(appointment.results)}
+        <View style={styles.textContainer}>
+          <View style={{ flexDirection: 'row' }}>
+            <Text style={styles.textStyle}>Serviciu: </Text>
+            <Text style={styles.text}> {appointment.analysis} </Text>
+          </View>
+
+          <View style={{ flexDirection: 'row' }}>
+            <Text style={styles.textStyle}>Diagnostic: </Text>
+            <Text style={styles.text}>{appointment.disease}</Text>
+          </View>
+
+          <View style={{ flexDirection: 'row' }}>
+            <Text style={styles.textStyle}>Tratament: </Text>
+            <Text style={styles.text}>{appointment.medication}</Text>
+          </View>
+
+          <View style={{ flexDirection: 'row' }}>
+            <Text style={styles.textStyle}>Rezultate: </Text>
+            <Text style={styles.text}>{this.renderResults(appointment.results)}</Text>
+          </View>
         </View>
       );
     }
@@ -140,6 +159,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     alignItems: 'center'
+  },
+  text: {
+    fontFamily: 'PTregular',
+    fontSize: 14
+  },
+  textStyle: {
+    fontFamily: 'PTbold',
+    fontSize: 14,
+    color: TURQUOISE
+  },
+  textContainer: {
+    marginTop: 10,
+    marginLeft: 7
   }
 });
 
