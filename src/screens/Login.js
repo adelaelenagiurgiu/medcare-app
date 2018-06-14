@@ -26,11 +26,19 @@ class Login extends Component {
   };
 
   static getDerivedStateFromProps(props) {
-    const { user, patient } = props;
-    if (user.token && user.role === 'patient') {
-      StoreProvider.getAppointmentsForPatient(patient.name);
-      //StoreProvider.getPatientHistory(patient.name);
-      props.navigation.navigate('Home');
+    const { user, error } = props;
+    if (user.token && user.role === 'patient' && error.length === 0) {
+      StoreProvider.getSections();
+      StoreProvider.getPatient(user.email);
+      props.navigation.navigate('PatientTab');
+      return {
+        loading: false
+      };
+    }
+
+    if (user.token && user.role === 'doctor' && error.length === 0) {
+      StoreProvider.getDoctor(user.email);
+      props.navigation.navigate('DoctorTab');
       return {
         loading: false
       };
@@ -145,6 +153,7 @@ const mapStateToProps = state => {
   return {
     user: state.user,
     patient: state.patient.patient,
+    doctor: state.doctor.doctor,
     error: state.errors.error
   };
 };

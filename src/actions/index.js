@@ -1,6 +1,6 @@
 import {
   STORE_USER,
-  CLEAR_USER,
+  USER_LOGOUT,
   STORE_SECTIONS,
   DELETE_BOOKED_HOUR,
   CLEAR_AVAILABLE_HOURS,
@@ -22,9 +22,9 @@ export const storeUser = user => {
   };
 };
 
-export const clearUser = () => {
+export const logout = () => {
   return {
-    type: CLEAR_USER
+    type: USER_LOGOUT
   };
 };
 

@@ -4,9 +4,9 @@ import { Constants } from 'expo';
 import { Header } from 'react-native-elements';
 import { connect } from 'react-redux';
 
-import { ArrowBack } from '../components/common';
-import { GREY, TURQUOISE, WHITE } from '../../assets/colors';
-import DoctorList from '../components/doctors/DoctorList';
+import { ArrowBack } from '../../components/common';
+import { GREY, TURQUOISE, WHITE } from '../../../assets/colors';
+import DoctorList from '../../components/doctors/DoctorList';
 
 class Doctors extends Component {
   constructor(props) {

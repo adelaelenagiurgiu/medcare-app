@@ -4,17 +4,23 @@ import { Icon } from 'react-native-elements';
 
 import { TURQUOISE, WHITE, MEDIUM_GREY } from '../../assets/colors';
 
-import Sections from '../screens/Sections';
-import Account from '../screens/Account';
-import Calendar from '../screens/Calendar';
-import History from '../screens/History';
-import Doctors from '../screens/Doctors';
-import SectionServices from '../screens/SectionServices';
-import Book from '../screens/Book';
 import Welcome from '../screens/Welcome';
 import Login from '../screens/Login';
 import LoginOrSignUp from '../screens/LoginOrSignUp';
 import SignUp from '../screens/SignUp';
+
+import Sections from '../screens/patient/Sections';
+import PatientAccount from '../screens/patient/Account';
+import PatientCalendar from '../screens/patient/Calendar';
+import PatientHistory from '../screens/patient/History';
+import Doctors from '../screens/patient/Doctors';
+import SectionServices from '../screens/patient/SectionServices';
+import Book from '../screens/patient/Book';
+
+import DoctorCalendar from '../screens/doctor/Calendar';
+import DoctorHistory from '../screens/doctor/History';
+import DoctorPatients from '../screens/doctor/Patients';
+import DoctorAccount from '../screens/doctor/Account';
 
 const SectionsStack = createStackNavigator(
   {
@@ -36,19 +42,19 @@ const SectionsStack = createStackNavigator(
   }
 );
 
-const TabStack = createBottomTabNavigator(
+const PatientTabStack = createBottomTabNavigator(
   {
     Home: {
       screen: SectionsStack
     },
     Calendar: {
-      screen: Calendar
+      screen: PatientCalendar
     },
     History: {
-      screen: History
+      screen: PatientHistory
     },
     Account: {
-      screen: Account
+      screen: PatientAccount
     }
   },
   {
@@ -89,6 +95,59 @@ const TabStack = createBottomTabNavigator(
   }
 );
 
+const DoctorTabStack = createBottomTabNavigator(
+  {
+    Calendar: {
+      screen: DoctorCalendar
+    },
+    History: {
+      screen: DoctorHistory
+    },
+    Patients: {
+      screen: DoctorPatients
+    },
+    Account: {
+      screen: DoctorAccount
+    }
+  },
+  {
+    navigationOptions: ({ navigation }) => ({
+      header: null,
+      tabBarIcon: ({ tintColor }) => {
+        const { routeName } = navigation.state;
+        let iconName;
+        let iconType;
+        if (routeName === 'Calendar') {
+          iconName = 'calendar';
+          iconType = 'entypo';
+        } else if (routeName === 'History') {
+          iconName = 'history';
+          iconType = 'material-community';
+        } else if (routeName === 'Patients') {
+          iconName = 'format-list-bulleted';
+          iconType = 'material-community';
+        } else if (routeName === 'Account') {
+          iconName = 'user';
+          iconType = 'font-awesome';
+        }
+
+        return <Icon name={iconName} type={iconType} size={28} color={tintColor} />;
+      }
+    }),
+    tabBarOptions: {
+      activeTintColor: WHITE,
+      inactiveTintColor: MEDIUM_GREY,
+      showLabel: false,
+      style: {
+        backgroundColor: TURQUOISE,
+        borderTopWidth: 0,
+        paddingBottom: 5,
+        paddingTop: 5
+      }
+    }
+  }
+);
+
 const PatientStack = createStackNavigator(
   {
     LoginOrSignUp: {
@@ -100,8 +159,8 @@ const PatientStack = createStackNavigator(
     SignUp: {
       screen: SignUp
     },
-    Home: {
-      screen: TabStack
+    PatientTab: {
+      screen: PatientTabStack
     }
   },
   {
@@ -114,8 +173,8 @@ const DoctorStack = createStackNavigator(
     Login: {
       screen: Login
     },
-    Home: {
-      screen: TabStack
+    DoctorTab: {
+      screen: DoctorTabStack
     }
   },
   {

@@ -1,4 +1,4 @@
-import { STORE_PATIENT_DATA, CLEAR_PATIENT_DATA } from '../actions/types';
+import { STORE_PATIENT_DATA, CLEAR_PATIENT_DATA, USER_LOGOUT } from '../actions/types';
 
 const INITIAL_STATE = {
   patient: {}
@@ -9,6 +9,8 @@ export default (state = INITIAL_STATE, action) => {
     case STORE_PATIENT_DATA:
       return { ...state, patient: Object.assign(state.patient, action.payload) };
     case CLEAR_PATIENT_DATA:
+      return INITIAL_STATE;
+    case USER_LOGOUT:
       return INITIAL_STATE;
     default:
       return state;

@@ -3,8 +3,8 @@ import { View, StyleSheet, Text, FlatList, ScrollView, Dimensions } from 'react-
 import { Constants } from 'expo';
 import { connect } from 'react-redux';
 import { Header, Card, List, ListItem } from 'react-native-elements';
-import { WHITE, GREY, TURQUOISE } from '../../assets/colors';
-import { Button, ArrowBack } from '../components/common';
+import { WHITE, GREY, TURQUOISE } from '../../../assets/colors';
+import { Button, ArrowBack } from '../../components/common';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 

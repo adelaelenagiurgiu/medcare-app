@@ -44,7 +44,7 @@ class SignUp extends Component {
     }
 
     if (props.user.token && props.user.role === 'patient') {
-      props.navigation.navigate('Home');
+      props.navigation.navigate('PatientTab');
       return {
         loading: false
       };

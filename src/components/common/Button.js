@@ -11,6 +11,7 @@ export const Button = ({
   buttonStyle,
   textColor,
   textType,
+  textSize,
   icon,
   iconType,
   iconColor
@@ -22,7 +23,12 @@ export const Button = ({
       <TouchableOpacity onPress={onPress} style={[button, buttonStyle]}>
         <View style={iconContainer}>
           <Icon name={icon} type={iconType} color={iconColor} size={30} />
-          <TextLine type="PTbold" size={20} color={textColor} style={{ paddingLeft: 10 }}>
+          <TextLine
+            type="PTbold"
+            size={textSize || 20}
+            color={textColor}
+            style={{ paddingLeft: 10 }}
+          >
             {title}
           </TextLine>
         </View>
@@ -32,7 +38,7 @@ export const Button = ({
 
   return (
     <TouchableOpacity onPress={onPress} style={[button, buttonStyle]}>
-      <TextLine type={textType || 'PTbold'} size={16} color={textColor}>
+      <TextLine type={textType || 'PTbold'} size={textSize || 16} color={textColor}>
         {title}
       </TextLine>
     </TouchableOpacity>

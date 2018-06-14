@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, Dimensions, AsyncStorage } from 'react-native';
+import { View, StyleSheet, Dimensions, AsyncStorage } from 'react-native';
 import { connect } from 'react-redux';
 import { Constants } from 'expo';
-import { Header } from 'react-native-elements';
+import { Header, Avatar } from 'react-native-elements';
 
-import Error from '../components/Error';
-import { clearUser, clearPatientAppointments, addError } from '../actions';
-import { ArrowBack, Button } from '../components/common';
-import { TURQUOISE, WHITE, GREY } from '../../assets/colors';
+import Error from '../../components/Error';
+import { persistor } from '../../store';
+import { logout, addError } from '../../actions';
+import { Button, TextLine } from '../../components/common';
+import { TURQUOISE, WHITE, GREY } from '../../../assets/colors';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -19,31 +20,37 @@ class Account extends Component {
   }
 
   onLogout() {
-    this.props.clearUser();
-    this.props.clearPatientAppointments();
-    const keys = ['token', 'persist:root'];
-    // eslint-disable-next-line
-    AsyncStorage.multiRemove(keys, error => {
-      if (error) {
-        this.props.addError('Nu v-am putut deconecta');
-      }
-      this.props.navigation.navigate('Welcome');
-    });
+    this.props.logout();
+    persistor.purge();
+    AsyncStorage.clear();
+    this.props.navigation.navigate('Welcome');
   }
 
   render() {
+    const { patientName } = this.props.patient;
+    let initials = '';
+
+    if (patientName) {
+      const splitName = patientName.split(' ');
+      for (const part of splitName) {
+        initials = initials.concat(part.substr(0, 1));
+      }
+    }
+
     return (
       <View style={styles.container}>
         <Error />
         <Header
           backgroundColor={TURQUOISE}
-          leftComponent={<ArrowBack onPress={() => this.props.navigation.goBack()} />}
           centerComponent={{ text: 'Profilul meu', style: { color: WHITE } }}
           innerContainerStyles={{ alignItems: 'center' }}
           outerContainerStyles={{ height: 50 }}
         />
         <View style={styles.contentContainer}>
-          <Text>{this.props.patient.patientName}</Text>
+          <TextLine type="semi-bold" size={16} color={TURQUOISE} style={{ marginBottom: 15 }}>
+            {patientName}
+          </TextLine>
+          <Avatar width={130} height={130} rounded title={initials} />
           <Button
             title="Deconecteaza-te"
             textColor={WHITE}
@@ -66,11 +73,13 @@ const styles = StyleSheet.create({
     height: 50,
     width: SCREEN_WIDTH - 60,
     marginBottom: 20,
+    marginTop: 20,
     justifyContent: 'center',
     alignItems: 'center'
   },
   contentContainer: {
-    alignItems: 'center'
+    alignItems: 'center',
+    marginTop: 15
   }
 });
 
@@ -82,5 +91,5 @@ const mapStateToProps = state => {
 
 export default connect(
   mapStateToProps,
-  { clearUser, clearPatientAppointments, addError }
+  { logout, addError }
 )(Account);

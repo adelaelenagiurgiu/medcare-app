@@ -1,15 +1,14 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Text, Dimensions, Alert } from 'react-native';
+import { View, StyleSheet, Dimensions, FlatList } from 'react-native';
 import { Constants } from 'expo';
-import { Header, Card, Icon, Avatar } from 'react-native-elements';
+import { Header, Icon } from 'react-native-elements';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { connect } from 'react-redux';
 import moment from 'moment';
 
-import StoreProvider from '../store/StoreProvider';
-import Error from '../components/Error';
-import { ArrowBack, Loading } from '../components/common';
-import { TURQUOISE, WHITE, GREY, LIGHT_TURQUOISE, DARK_GREY } from '../../assets/colors';
+import Error from '../../components/Error';
+import { Loading, TextLine } from '../../components/common';
+import { TURQUOISE, WHITE, GREY, LIGHT_TURQUOISE, DARK_GREY } from '../../../assets/colors';
 
 // const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -46,14 +45,11 @@ class Calendars extends Component {
     this.maxDate = moment()
       .endOf('year')
       .format('YYYY-MM-DD');
-
-    this.onCancel = this.onCancel.bind(this);
-    this.onConfirm = this.onConfirm.bind(this);
   }
 
   state = {
     // eslint-disable-next-line
-    patientAppointments: [],
+    doctorAppointments: [],
     markedDates: {},
     selectedDay: {},
     selected: false,
@@ -64,8 +60,8 @@ class Calendars extends Component {
     if (!state.selected) {
       const dates = {};
 
-      if (props.patientAppointments.length > 0) {
-        for (const appointment of props.patientAppointments) {
+      if (props.doctorAppointments.length > 0) {
+        for (const appointment of props.doctorAppointments) {
           const dateString = moment(
             `${appointment.date.year}-${appointment.date.month}-${appointment.date.day}`,
             'YYYY-MM-DD'
@@ -82,11 +78,11 @@ class Calendars extends Component {
       };
     }
 
-    if (props.patientAppointments !== state.patientAppointments) {
+    if (props.doctorAppointments !== state.doctorAppointments) {
       const dates = {};
 
-      if (props.patientAppointments.length > 0) {
-        for (const appointment of props.patientAppointments) {
+      if (props.doctorAppointments.length > 0) {
+        for (const appointment of props.doctorAppointments) {
           const dateString = moment(
             `${appointment.date.year}-${appointment.date.month}-${appointment.date.day}`,
             'YYYY-MM-DD'
@@ -103,10 +99,10 @@ class Calendars extends Component {
       };
     }
 
-    if (props.patientAppointments.length > 0) {
+    if (props.doctorAppointments.length > 0) {
       const dates = {};
 
-      for (const appointment of props.patientAppointments) {
+      for (const appointment of props.doctorAppointments) {
         const dateString = moment(
           `${appointment.date.year}-${appointment.date.month}-${appointment.date.day}`,
           'YYYY-MM-DD'
@@ -123,104 +119,119 @@ class Calendars extends Component {
     return null;
   }
 
-  onCancel() {
-    Alert.alert(
-      'Confirmare',
-      'Sigur doriti sa stergeti programarea?',
-      [{ text: 'Nu', style: 'cancel' }, { text: 'Da', onPress: this.onConfirm }],
-      { cancelable: false }
-    );
-  }
-
-  async onConfirm() {
-    this.setState({ loading: true });
-    await StoreProvider.deleteAppointment(this.appointmentId);
-    this.setState({ loading: false });
-  }
-
   onDayPress(day) {
     this.setState({ selectedDay: day, selected: true });
   }
 
-  renderAppointment() {
+  renderAppointments() {
     const { selectedDay, selected } = this.state;
+    const { doctorAppointments } = this.props;
 
     let exists = false;
     if (selectedDay) {
-      let selectedAppointment = {};
-      for (const appointment of this.props.patientAppointments) {
+      const selectedAppointments = [];
+      for (const appointment of doctorAppointments) {
         if (
           appointment.date.day === String(selectedDay.day) &&
           appointment.date.month === String(selectedDay.month) &&
           appointment.date.year === String(selectedDay.year)
         ) {
-          selectedAppointment = appointment;
-          this.appointmentId = appointment._id;
+          selectedAppointments.push(appointment);
           exists = true;
         }
       }
 
-      if (selected && exists) {
-        const constructedDate = moment(
-          `${selectedAppointment.date.day}-${selectedAppointment.date.month}-${
-            selectedAppointment.date.year
-          }`,
-          'DD-MM-YYYY'
-        )
-          .format('DD-MM-YYYY')
-          .toString();
+      selectedAppointments.sort((x, y) => {
+        const a = moment(`${x.start}`, 'HH:mm');
+        const b = moment(`${y.start}`, 'HH:mm');
 
+        if (a.isAfter(b)) {
+          return 1;
+        } else if (a.isBefore(b)) {
+          return -1;
+        }
+        return 0;
+      });
+
+      if (selected && exists) {
         return (
-          <View style={{ alignItems: 'center' }}>
-            <Card containerStyle={styles.cardStyle} wrapperStyle={{ flexDirection: 'row' }}>
-              <View style={{ flex: 3, marginRight: 15, justifyContent: 'center' }}>
-                <Avatar
-                  width={90}
-                  height={90}
-                  rounded
-                  source={{ uri: selectedAppointment.doctorImage }}
-                />
-              </View>
-              <View style={{ flex: 8, marginLeft: 15 }}>
-                <View style={styles.row}>
-                  <Icon
-                    name="user-md"
-                    type="font-awesome"
-                    color={TURQUOISE}
-                    containerStyle={{ marginLeft: 2 }}
-                  />
-                  <Text style={[styles.appointmentTextStyle, { marginLeft: 14 }]}>
-                    {selectedAppointment.doctor}
-                  </Text>
-                </View>
-                <View style={styles.row}>
-                  <Icon name="calendar" type="font-awesome" color={TURQUOISE} />
-                  <Text style={[styles.appointmentTextStyle, { marginLeft: 13 }]}>
-                    {selectedAppointment.weekDay}, {constructedDate}
-                  </Text>
-                </View>
-                <View style={styles.row}>
-                  <Icon name="access-time" color={TURQUOISE} />
-                  <Text style={styles.appointmentTextStyle}>{selectedAppointment.start}</Text>
-                </View>
-              </View>
-              <View style={styles.crossContainer}>
-                <Icon
-                  name="cross"
-                  type="entypo"
-                  color="red"
-                  underlayColor="transparent"
-                  size={30}
-                  onPress={this.onCancel}
-                />
-              </View>
-            </Card>
-          </View>
+          <FlatList
+            data={selectedAppointments}
+            keyExtractor={item => item._id}
+            initialNumToRender={1}
+            renderItem={({ item }) => this.renderItem({ item })}
+            contentContainerStyle={{ paddingTop: 15 }}
+          />
         );
       }
     }
 
     return null;
+  }
+
+  renderItem({ item }) {
+    const constructedDate = moment(
+      `${item.date.day}-${item.date.month}-${item.date.year}`,
+      'DD-MM-YYYY'
+    )
+      .format('DD-MM-YYYY')
+      .toString();
+
+    return (
+      <View style={styles.appointmentContainer}>
+        <View style={{ width: '50%' }}>
+          <View style={styles.leftRow}>
+            <Icon
+              name="user"
+              type="font-awesome"
+              color={TURQUOISE}
+              containerStyle={styles.iconContainer}
+            />
+            <TextLine type="PTregular" size={14} color="#000">
+              {item.patient}
+            </TextLine>
+          </View>
+          <View style={styles.leftRow}>
+            <Icon
+              name="calendar"
+              type="font-awesome"
+              size={20}
+              color={TURQUOISE}
+              containerStyle={styles.iconContainer}
+            />
+            <TextLine type="PTregular" size={14} color="#000">
+              {item.weekDay}, {constructedDate}
+            </TextLine>
+          </View>
+        </View>
+        <View style={{ width: '50%', alignItems: 'flex-end' }}>
+          <View style={styles.rightRow}>
+            <Icon
+              name="timer"
+              type="material-community"
+              size={22}
+              color={TURQUOISE}
+              containerStyle={styles.iconContainer}
+            />
+            <TextLine type="PTregular" size={14} color="#000">
+              {item.start}
+            </TextLine>
+          </View>
+          <View style={styles.rightRow}>
+            <Icon
+              name="timer-off"
+              type="material-community"
+              size={22}
+              color={TURQUOISE}
+              containerStyle={styles.iconContainer}
+            />
+            <TextLine type="PTregular" size={14} color="#000">
+              {item.end}
+            </TextLine>
+          </View>
+        </View>
+      </View>
+    );
   }
 
   render() {
@@ -230,7 +241,6 @@ class Calendars extends Component {
         <Error />
         <Header
           backgroundColor={TURQUOISE}
-          leftComponent={<ArrowBack onPress={() => this.props.navigation.goBack()} />}
           centerComponent={{ text: 'Calendar', style: { color: WHITE } }}
           innerContainerStyles={{ alignItems: 'center' }}
           outerContainerStyles={{ height: 50 }}
@@ -269,7 +279,7 @@ class Calendars extends Component {
           onPressArrowRight={addMonth => addMonth()}
           markedDates={this.state.markedDates}
         />
-        {this.renderAppointment()}
+        {this.renderAppointments()}
       </View>
     );
   }
@@ -281,33 +291,35 @@ const styles = StyleSheet.create({
     backgroundColor: GREY,
     paddingTop: Constants.statusBarHeight
   },
-  appointmentTextStyle: {
-    fontFamily: 'PTregular',
-    fontSize: 14,
-    marginLeft: 10
+  iconContainer: {
+    marginRight: 10
   },
-  cardStyle: {
-    width: SCREEN_WIDTH - 20,
-    height: 125,
-    padding: 10,
-    justifyContent: 'center'
-  },
-  row: {
+  leftRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 2.5
+    marginVertical: 2.5,
+    left: 20
   },
-  crossContainer: {
-    flex: 1,
-    transform: [{ translateY: -7.8 }]
+  rightRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 2.5,
+    right: 20
+  },
+  appointmentContainer: {
+    flexDirection: 'row',
+    backgroundColor: WHITE,
+    width: SCREEN_WIDTH,
+    borderBottomWidth: 1,
+    borderColor: GREY,
+    paddingVertical: 2.5
   }
 });
 
 const mapStateToProps = state => {
   return {
-    patientAppointments: state.appointments.patientAppointments,
-    sections: state.sectionsArray.sections,
-    patient: state.patient.patient
+    doctorAppointments: state.appointments.doctorAppointments,
+    sections: state.sectionsArray.sections
   };
 };
 

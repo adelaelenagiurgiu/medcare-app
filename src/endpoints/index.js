@@ -3,5 +3,6 @@ export const BOOK = 'https://shielded-sierra-53914.herokuapp.com/book';
 export const APPOINTMENTS = 'https://shielded-sierra-53914.herokuapp.com/appointments';
 export const USERS = 'https://shielded-sierra-53914.herokuapp.com/users';
 export const PATIENTS = 'https://shielded-sierra-53914.herokuapp.com/patients';
+export const DOCTORS = 'https://shielded-sierra-53914.herokuapp.com/doctors';
 export const REGISTER = 'https://shielded-sierra-53914.herokuapp.com/register';
 export const LOGIN = 'https://shielded-sierra-53914.herokuapp.com/login';

@@ -15,11 +15,11 @@ import { Header } from 'react-native-elements';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import moment from 'moment';
 
-import StoreProvider from '../store/StoreProvider';
-import Error from '../components/Error';
-import { ArrowBack, Button, Loading } from '../components/common';
-import { GREY, DARK_GREY, LIGHT_TURQUOISE, TURQUOISE, WHITE } from '../../assets/colors';
-import { deleteBookedHour, clearAvailableHours } from '../actions';
+import StoreProvider from '../../store/StoreProvider';
+import Error from '../../components/Error';
+import { ArrowBack, Button, Loading } from '../../components/common';
+import { GREY, DARK_GREY, LIGHT_TURQUOISE, TURQUOISE, WHITE } from '../../../assets/colors';
+import { deleteBookedHour, clearAvailableHours } from '../../actions';
 
 // const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;

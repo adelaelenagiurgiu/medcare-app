@@ -3,14 +3,18 @@ import {
   DELETE_BOOKED_HOUR,
   CLEAR_AVAILABLE_HOURS,
   STORE_PATIENT_APPOINTMENTS,
+  STORE_DOCTOR_APPOINTMENTS,
+  UPDATE_APPOINTMENT,
   ADD_PATIENT_APPOINTMENT,
   DELETE_APPOINTMENT,
-  CLEAR_PATIENT_APPOINTMENTS
+  CLEAR_PATIENT_APPOINTMENTS,
+  USER_LOGOUT
 } from '../actions/types';
 
 const INITIAL_STATE = {
   availableHours: [],
-  patientAppointments: []
+  patientAppointments: [],
+  doctorAppointments: []
 };
 
 const DEFAULT_APPOINTMENT = {
@@ -51,12 +55,25 @@ export default (state = INITIAL_STATE, action) => {
     }
     case STORE_PATIENT_APPOINTMENTS:
       return { ...state, patientAppointments: action.payload };
+    case STORE_DOCTOR_APPOINTMENTS:
+      return { ...state, doctorAppointments: action.payload };
     // eslint-disable-next-line
     case ADD_PATIENT_APPOINTMENT:
       const newAppointment = Object.assign({}, DEFAULT_APPOINTMENT, action.payload);
       return Object.assign({}, state, {
         patientAppointments: [...state.patientAppointments, newAppointment]
       });
+    case UPDATE_APPOINTMENT:
+      return {
+        ...state,
+        doctorAppointments: state.doctorAppointments.map(appointment => {
+          if (appointment._id === action.payload.id) {
+            return Object.assign({}, action.payload.updatedAppointment);
+          }
+
+          return appointment;
+        })
+      };
     case DELETE_APPOINTMENT: {
       return {
         ...state,
@@ -66,6 +83,8 @@ export default (state = INITIAL_STATE, action) => {
       };
     }
     case CLEAR_PATIENT_APPOINTMENTS:
+      return INITIAL_STATE;
+    case USER_LOGOUT:
       return INITIAL_STATE;
     default:
       return state;

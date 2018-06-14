@@ -10,22 +10,22 @@ import { TURQUOISE, LIGHT_TURQUOISE, WHITE } from '../../assets/colors';
 import Logo from '../../assets/icon.png';
 import { TextLine, Button } from '../components/common';
 
-// const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 class Welcome extends Component {
   async componentDidMount() {
-    const { user, patient, error, navigation } = this.props;
+    const { user, patient, doctor, error, navigation } = this.props;
     const token = await AsyncStorage.getItem('token');
-    //   this.props.clearUser();
-    //   this.props.clearPatientData();
-    //   persistor.purge();
-    //   await AsyncStorage.clear();
-    //   const state = store.getState();
-    //   console.log(state.patient);
+
     if (user.role === 'patient' && token && error.length === 0) {
       await StoreProvider.getAppointmentsForPatient(patient.patientName);
-      navigation.navigate('Home');
+      navigation.navigate('PatientTab');
+    }
+
+    if (user.role === 'doctor' && token && error.length === 0) {
+      await StoreProvider.getAppointmentsForDoctor(doctor.doctorName);
+      await StoreProvider.getPatientsForDoctor(doctor.doctorName);
+      navigation.navigate('DoctorTab');
     }
   }
 
@@ -111,6 +111,7 @@ const mapStateToProps = state => {
   return {
     user: state.user,
     patient: state.patient.patient,
+    doctor: state.doctor.doctor,
     error: state.errors.error
   };
 };

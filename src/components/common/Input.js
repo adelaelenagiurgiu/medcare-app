@@ -10,9 +10,6 @@ export class Input extends Component {
   constructor(props) {
     super(props);
 
-    this.onFocus = this.onFocus.bind(this);
-    this.onBlur = this.onBlur.bind(this);
-
     this.state = {
       color: props.mainColor || MEDIUM_GREY,
       textColor: props.textColor || MEDIUM_GREY,
@@ -48,7 +45,9 @@ export class Input extends Component {
       iconType,
       label,
       containerStyle,
-      inputStyle
+      inputStyle,
+      onFocus,
+      onBlur
     } = this.props;
     return (
       <View style={[styles.container, containerStyle, { width, borderColor: this.state.color }]}>
@@ -78,8 +77,14 @@ export class Input extends Component {
           secureTextEntry={secureTextEntry}
           autoComplete={false}
           autoCorrect={false}
-          onFocus={this.onFocus}
-          onBlur={this.onBlur}
+          onFocus={() => {
+            this.onFocus();
+            onFocus ? onFocus() : null;
+          }}
+          onBlur={() => {
+            this.onBlur();
+            onBlur ? onBlur() : null;
+          }}
           style={[styles.input, inputStyle, { width, color: this.state.textColor }]}
         />
       </View>
@@ -101,7 +106,9 @@ Input.propTypes = {
   mainColor: PropTypes.string,
   focusColor: PropTypes.string,
   textColor: PropTypes.string,
-  label: PropTypes.string
+  label: PropTypes.string,
+  onFocus: PropTypes.func,
+  onBlur: PropTypes.func
 };
 
 const styles = StyleSheet.create({

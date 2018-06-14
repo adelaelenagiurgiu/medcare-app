@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, StyleSheet } from 'react-native';
-import SectionList from '../components/sections/SectionList';
-import { GREY } from '../../assets/colors';
+import SectionList from '../../components/sections/SectionList';
+import { GREY } from '../../../assets/colors';
 
 export default class Sections extends Component {
   render() {

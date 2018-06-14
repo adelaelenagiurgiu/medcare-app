@@ -5,9 +5,8 @@ import { Constants } from 'expo';
 import { connect } from 'react-redux';
 import moment from 'moment';
 
-import { ArrowBack } from '../components/common';
-import { TURQUOISE, WHITE, GREY } from '../../assets/colors';
-import HistoryList from '../components/history/HistoryList';
+import { TURQUOISE, WHITE, GREY } from '../../../assets/colors';
+import HistoryList from '../../components/history/HistoryList';
 
 // const SCREEN_HEIGHT = Dimensions.get('window').height;
 // const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -50,12 +49,11 @@ class History extends Component {
       <View style={styles.container}>
         <Header
           backgroundColor={TURQUOISE}
-          leftComponent={<ArrowBack onPress={() => this.props.navigation.goBack()} />}
           centerComponent={{ text: 'Istoric', style: { color: WHITE } }}
           innerContainerStyles={{ alignItems: 'center' }}
           outerContainerStyles={{ height: 50 }}
         />
-        <HistoryList appointments={this.state.appointments} />
+        <HistoryList type="patient" appointments={this.state.appointments} />
       </View>
     );
   }
@@ -71,7 +69,6 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = state => {
   return {
-    history: state.patient.history,
     patientAppointments: state.appointments.patientAppointments
   };
 };
